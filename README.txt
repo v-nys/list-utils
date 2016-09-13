@@ -1,0 +1,1 @@
+This is a collection of functions which I have found useful when working with lists, written in Racket.

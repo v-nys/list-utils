@@ -1,5 +1,4 @@
-#lang typed/racket
-(: mapAccum (All (ElemType AccType OutType) (-> (-> ElemType AccType (Pair OutType AccType)) AccType (Listof ElemType) (Pair (Listof OutType) AccType))))
+#lang racket
 ; note: this works, but it is non-tail-recursive
 ; will leave it this way for now - if there is a recursion depth problem in an application using this, I'll rewrite it
 (define (mapAccum mapping-function acc lst)
