@@ -21,7 +21,6 @@
      acc-type?
      (listof elem-type?)
      (cons/c (listof mapped-elem-type?) acc-type?)))]))
-
 (define (map-accumulatel mapping-function acc lst)
   ; fold-acc is a pair consisting of the mapping so far and the "real" accumulator
   (define with-reverse-mapping
@@ -44,3 +43,11 @@
      acc-type?
      (listof elem-type?)
      (cons/c (listof mapped-elem-type?) acc-type?)))]))
+
+(define (findf-index proc lst)
+  (define (findf-index-aux proc lst index)
+    (cond [(null? lst) #f]
+          [(proc (car lst)) index]
+          [else (findf-index-aux proc (cdr lst) (+ index 1))]))
+  (findf-index-aux proc lst 0))
+(provide (contract-out [findf-index (-> (-> any/c boolean?) list? (or/c #f exact-nonnegative-integer?))]))
