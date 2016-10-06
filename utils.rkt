@@ -50,4 +50,16 @@
           [(proc (car lst)) index]
           [else (findf-index-aux proc (cdr lst) (+ index 1))]))
   (findf-index-aux proc lst 0))
-(provide (contract-out [findf-index (-> (-> any/c boolean?) list? (or/c #f exact-nonnegative-integer?))]))
+(provide
+ (contract-out
+  [findf-index (-> (-> any/c boolean?) list? (or/c #f exact-nonnegative-integer?))]))
+
+(define (odd-elems lst)
+  (reverse
+   (cdr
+    (foldl (λ (elem acc) (if (car acc) (cons #f (cons elem (cdr acc))) (cons #t (cdr acc))))
+           (list #t)
+           lst))))
+(provide
+ (contract-out
+  [odd-elems (-> list? list?)]))
