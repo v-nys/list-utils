@@ -6,8 +6,9 @@
   (foldr (λ (lst-elem fold-acc)
            (match fold-acc
              [(cons mapping map-acc-acc)
-              (let ([mapped-elem (car (mapping-function lst-elem map-acc-acc))]
-                    [updated-map-acc-acc (cdr (mapping-function lst-elem map-acc-acc))])
+              (let* ([mapped-pair (mapping-function lst-elem map-acc-acc)]
+                     [mapped-elem (car mapped-pair)]
+                     [updated-map-acc-acc (cdr mapped-pair)])
                 (cons (cons mapped-elem mapping) updated-map-acc-acc))]))
          (cons (list) acc)
          lst))
@@ -27,8 +28,9 @@
     (foldl (λ (lst-elem fold-acc)
              (match fold-acc
                [(cons mapping map-acc-acc)
-                (let ([mapped-elem (car (mapping-function lst-elem map-acc-acc))]
-                      [updated-map-acc-acc (cdr (mapping-function lst-elem map-acc-acc))])
+                (let* ([mapped-pair (mapping-function lst-elem map-acc-acc)]
+                       [mapped-elem (car mapped-pair)]
+                       [updated-map-acc-acc (cdr mapped-pair)])
                   (cons (cons mapped-elem mapping) updated-map-acc-acc))]))
            (cons (list) acc)
            lst))
