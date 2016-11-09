@@ -23,3 +23,23 @@
 (check-equal? (odd-elems '()) '())
 (check-equal? (odd-elems (list 4 9 2 0 7 5 6 7)) '(4 2 7 6)) ; test with even length
 (check-equal? (odd-elems (list 9 2 0 7 5 6 7)) '(9 0 5 7)) ; test with odd length
+
+(test-case
+ "considering all possible splits on a predicate"
+ (check-equal?
+  (all-splits-on
+   even?
+   '(3 7 9))
+  '())
+ (check-equal?
+  (all-splits-on
+   even?
+   '(3 7 9 2 11))
+   (list (list '(3 7 9) 2 '(11))))
+ (check-equal?
+  (all-splits-on
+   even?
+   '(3 7 9 2 11 4 3))
+   (list
+    (list '(3 7 9 2 11) 4 '(3))
+    (list '(3 7 9) 2 '(11 4 3)))))

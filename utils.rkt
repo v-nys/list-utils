@@ -1,5 +1,31 @@
-#lang racket
+; MIT License
+; 
+; Copyright (c) 2016 Vincent Nys
+; 
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+; 
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+; 
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+
+#lang at-exp racket
+
 (require racket/contract/parametric)
+
+(require scribble/srcdoc)
+(require (for-doc scribble/manual))
 
 (define (map-accumulater mapping-function acc lst)
   ; fold-acc is a pair consisting of the mapping so far and the "real" accumulator
@@ -65,3 +91,19 @@
 (provide
  (contract-out
   [odd-elems (-> list? list?)]))
+
+(define (all-splits-on pred? lst)
+  (foldl
+   (λ (elem idx acc)
+     (if (not (pred? elem))
+         acc
+         (cons (list (take lst idx) elem (drop lst (+ idx 1))) acc)))
+   (list)
+   lst
+   (range 0 (length lst))))
+(provide
+ (proc-doc/names
+  all-splits-on
+  (-> (-> any/c boolean?) list? (listof list?))
+  (pred lst)
+  @{Computes all possible splits of @racket[lst] on a supplied predicate @racket[pred].}))
