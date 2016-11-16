@@ -92,6 +92,28 @@
  (contract-out
   [odd-elems (-> list? list?)]))
 
+(define (group-by proc lst)
+  (reverse
+   (foldl
+    (λ (elem acc)
+      (let* ([elem-outcome (proc elem)]
+             [outcome-group (findf-index (λ (g) (equal? (proc (car g)) elem-outcome)) acc)])
+        (if outcome-group
+            (append
+             (take acc outcome-group)
+             (list (append (list-ref acc outcome-group) (list elem)))
+             (drop acc (+ outcome-group 1)))
+            (cons (list elem) acc))))
+    '()
+    lst)))
+(provide
+ (proc-doc/names
+  group-by
+  (-> (-> any/c any/c) list? list?)
+  (proc lst)
+  @{Splits a list @racket[lst] into sublists such that all elements in a sublist
+ have the same result for @racket[proc] (based on @racket[equal?]).}))
+
 (define (all-splits-on pred? lst)
   (foldl
    (λ (elem idx acc)
