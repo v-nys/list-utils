@@ -129,3 +129,27 @@
   (-> (-> any/c boolean?) list? (listof list?))
   (pred lst)
   @{Computes all possible splits of @racket[lst] on a supplied predicate @racket[pred].}))
+
+(define (subsequences lst)
+  (match lst
+    [(list) (list)]
+    [(list val) (list lst)]
+    [(list-rest val vals)
+     (append
+      (map (λ (num) (drop-right lst num)) (range (length lst)))
+      (subsequences vals))]))
+(module+ test
+  (require rackunit)
+  (check-equal?
+   (subsequences '(1))
+   '((1)))
+  (check-equal?
+   (subsequences '(1 2 3 4))
+   '((1 2 3 4) (1 2 3) (1 2) (1) (2 3 4) (2 3) (2) (3 4) (3) (4))))
+(provide
+ (proc-doc/names
+  subsequences
+  (-> list? (listof list?))
+  (lst)
+  @{Returns a list of all nonempty subsequences of @racket[lst].}))
+  
