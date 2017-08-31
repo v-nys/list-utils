@@ -152,4 +152,36 @@
   (-> list? (listof list?))
   (lst)
   @{Returns a list of all nonempty subsequences of @racket[lst].}))
-  
+
+(define (replace-sublist lst sublst/i sublst/o)
+  (cond [(list-prefix? sublst/i lst)
+         (append
+          sublst/o
+          (drop lst (length sublst/i)))]
+        [(not (null? lst))
+         (cons
+          (first lst)
+          (replace-sublist
+           (cdr lst)
+           sublst/i
+           sublst/o))]
+        [else lst]))
+(module+ test
+  (check-equal?
+   (replace-sublist '(1 2 3 4) '(2 3) '(5 6))
+   '(1 5 6 4))
+  (check-equal?
+   (replace-sublist '(1 2 3) '() '(0))
+   '(0 1 2 3))
+  (check-equal?
+   (replace-sublist '(1 2 3) '(4 5 6) '(0))
+   '(1 2 3))
+  (check-equal?
+   (replace-sublist '() '() '(0))
+   '(0)))
+(provide
+ (proc-doc/names
+  replace-sublist
+  (-> list? list? list? list?)
+  (lst sublst/i sublst/o)
+  @{Replaces the first occurrence of the sublist @racket[sublst/i] in @racket[lst] with @racket[sublst/o].}))
