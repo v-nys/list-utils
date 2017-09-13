@@ -185,3 +185,13 @@
   (-> list? list? list? list?)
   (lst sublst/i sublst/o)
   @{Replaces the first occurrence of the sublist @racket[sublst/i] in @racket[lst] with @racket[sublst/o].}))
+
+(define (frequencies lst)
+  (define (insert e acc)
+    (hash-set
+     acc
+     e
+     (add1
+      (hash-ref acc e 0))))
+  (foldl insert (hash) lst))
+(provide frequencies)
