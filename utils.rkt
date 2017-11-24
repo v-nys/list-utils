@@ -199,12 +199,12 @@
 (define (enumerate lst)
   (car
    (map-accumulatel
-   (λ (e acc)
-     (cons
-      (cons e acc)
-      (add1 acc)))
-   0
-   lst)))
+    (λ (e acc)
+      (cons
+       (cons e acc)
+       (add1 acc)))
+    0
+    lst)))
 (module+ test
   (check-equal?
    (enumerate '("mercury" "venus" "earth"))
@@ -215,3 +215,18 @@
   (-> (listof any/c) (listof (cons/c any/c exact-nonnegative-integer?)))
   (lst)
   @{Links every element in @racket[lst] to an index.}))
+
+(define (splice-in lst elem idx)
+  (append
+   (take lst idx)
+   (cons elem (drop lst idx))))
+(module+ test
+  (check-equal?
+   (splice-in '(0 1 2 3 4) 'X 2)
+   '(0 1 X 2 3 4)))
+(provide
+ (proc-doc/names
+  splice-in
+  (-> list? any/c exact-nonnegative-integer? list?)
+  (lst val pos)
+  @{Inserts @racket[val] at position @racket[pos] of @racket[lst], shifting the element that originally occupied @racket[pos] (if any) one position to the right.}))
