@@ -195,3 +195,23 @@
       (hash-ref acc e 0))))
   (foldl insert (hash) lst))
 (provide frequencies)
+
+(define (enumerate lst)
+  (car
+   (map-accumulatel
+   (λ (e acc)
+     (cons
+      (cons e acc)
+      (add1 acc)))
+   0
+   lst)))
+(module+ test
+  (check-equal?
+   (enumerate '("mercury" "venus" "earth"))
+   '(("mercury" . 0) ("venus" . 1) ("earth" . 2))))
+(provide
+ (proc-doc/names
+  enumerate
+  (-> (listof any/c) (listof (cons/c any/c exact-nonnegative-integer?)))
+  (lst)
+  @{Links every element in @racket[lst] to an index.}))
