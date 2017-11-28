@@ -230,3 +230,26 @@
   (-> list? any/c exact-nonnegative-integer? list?)
   (lst val pos)
   @{Inserts @racket[val] at position @racket[pos] of @racket[lst], shifting the element that originally occupied @racket[pos] (if any) one position to the right.}))
+
+(define (append/impure . lsts)
+  (if
+   (andmap list? lsts)
+   (apply append lsts)
+   (let ([last-lst (last lsts)])
+     (foldr
+      cons
+      (cdr (last-pair last-lst))
+      (append
+       (apply append (drop-right lsts 1))
+       (drop-right last-lst 0))))))
+(module+ test
+  (check-equal?
+   (append/impure '(1 2 3 . 4))
+   '(1 2 3 . 4))
+  (check-equal?
+   (append/impure '(1 2 3) '(4 5 6) '(7 8 9 . 10))
+   '(1 2 3 4 5 6 7 8 9 . 10)))
+(provide
+ (contract-out
+  (append/impure
+   (->* () #:rest pair? pair?))))
