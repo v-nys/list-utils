@@ -1,6 +1,6 @@
 ; MIT License
 ; 
-; Copyright (c) 2016 Vincent Nys
+; Copyright (c) 2016-2017 Vincent Nys
 ; 
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,11 @@
 ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
-
 #lang at-exp racket
 
-(require racket/contract/parametric)
-
-(require scribble/srcdoc)
-(require (for-doc scribble/manual))
+(require racket/contract/parametric
+         scribble/srcdoc
+         (for-doc scribble/manual))
 
 (define (map-accumulater mapping-function acc lst)
   ; fold-acc is a pair consisting of the mapping so far and the "real" accumulator
@@ -38,6 +36,16 @@
                 (cons (cons mapped-elem mapping) updated-map-acc-acc))]))
          (cons (list) acc)
          lst))
+(module+ test
+  (require rackunit)
+  (check-equal?
+   (map-accumulater (λ (e acc) (cons (+ e acc) (- (+ e acc) 1))) 1 '())
+   (cons '() 1)
+   "Sum of element and accumulator, with accumulator = sum - 1, empty list")
+  (check-equal?
+   (map-accumulater (λ (e acc) (cons (+ e acc) (- (+ e acc) 1))) 1 '(1 2 3 4))
+   (cons '(8 8 7 5) 7)
+   "Sum of element and accumulator, with accumulator = sum - 1, nonempty list"))
 (provide
  (contract-out
   [map-accumulater
@@ -48,6 +56,7 @@
      acc-type?
      (listof elem-type?)
      (cons/c (listof mapped-elem-type?) acc-type?)))]))
+
 (define (map-accumulatel mapping-function acc lst)
   ; fold-acc is a pair consisting of the mapping so far and the "real" accumulator
   (define with-reverse-mapping
@@ -61,6 +70,15 @@
            (cons (list) acc)
            lst))
   (cons (reverse (car with-reverse-mapping)) (cdr with-reverse-mapping)))
+(module+ test
+  (check-equal?
+   (map-accumulatel (λ (e acc) (cons (+ e acc) (- (+ e acc) 1))) 1 '())
+   (cons '() 1)
+   "Sum of element and accumulator, with accumulator = sum - 1, empty list")
+  (check-equal?
+   (map-accumulatel (λ (e acc) (cons (+ e acc) (- (+ e acc) 1))) 1 '(1 2 3 4))
+   (cons '(2 3 5 8) 7)
+   "Sum of element and accumulator, with accumulator = sum - 1, nonempty list"))
 (provide
  (contract-out
   [map-accumulatel
@@ -78,9 +96,16 @@
           [(proc (car lst)) index]
           [else (findf-index-aux proc (cdr lst) (+ index 1))]))
   (findf-index-aux proc lst 0))
+(module+ test
+  (check-equal? (findf-index (λ (_) #t) '()) #f)
+  (check-equal? (findf-index odd? '(1 2 3 4 5)) 0)
+  (check-equal? (findf-index odd? '(2 4 6 1)) 3))
 (provide
- (contract-out
-  [findf-index (-> (-> any/c boolean?) list? (or/c #f exact-nonnegative-integer?))]))
+ (proc-doc/names
+  findf-index
+  (-> (-> any/c boolean?) list? (or/c #f exact-nonnegative-integer?))
+  (proc lst)
+  @{Finds the index of the first element in @racket[lst] such that @racket[proc] returns a non-false result.}))
 
 (define (odd-elems lst)
   (reverse
@@ -88,6 +113,10 @@
     (foldl (λ (elem acc) (if (car acc) (cons #f (cons elem (cdr acc))) (cons #t (cdr acc))))
            (list #t)
            lst))))
+(module+ test
+  (check-equal? (odd-elems '()) '())
+  (check-equal? (odd-elems (list 4 9 2 0 7 5 6 7)) '(4 2 7 6) "with even length")
+  (check-equal? (odd-elems (list 9 2 0 7 5 6 7)) '(9 0 5 7) "with odd length"))
 (provide
  (contract-out
   [odd-elems (-> list? list?)]))
@@ -106,6 +135,10 @@
             (cons (list elem) acc))))
     '()
     lst)))
+(module+ test
+  (check-equal?
+   (group-by (λ (x) (modulo x 4)) '(4 7 2 3 9 5 1 2 8))
+   '((4 8) (7 3) (2 2) (9 5 1))))
 (provide
  (proc-doc/names
   group-by
@@ -123,6 +156,26 @@
    (list)
    lst
    (range 0 (length lst))))
+(module+ test
+  (test-case
+   "considering all possible splits on a predicate"
+   (check-equal?
+    (all-splits-on
+     even?
+     '(3 7 9))
+    '())
+   (check-equal?
+    (all-splits-on
+     even?
+     '(3 7 9 2 11))
+    (list (list '(3 7 9) 2 '(11))))
+   (check-equal?
+    (all-splits-on
+     even?
+     '(3 7 9 2 11 4 3))
+    (list
+     (list '(3 7 9 2 11) 4 '(3))
+     (list '(3 7 9) 2 '(11 4 3))))))
 (provide
  (proc-doc/names
   all-splits-on
@@ -139,7 +192,6 @@
       (map (λ (num) (drop-right lst num)) (range (length lst)))
       (subsequences vals))]))
 (module+ test
-  (require rackunit)
   (check-equal?
    (subsequences '(1))
    '((1)))
@@ -194,7 +246,16 @@
      (add1
       (hash-ref acc e 0))))
   (foldl insert (hash) lst))
-(provide frequencies)
+(module+ test
+  (check-equal?
+   (frequencies '(1 2 3 2 1))
+   #hash((1 . 2) (2 . 2) (3 . 1))))
+(provide
+ (proc-doc/names
+  frequencies
+  (-> list? hash?)
+  (lst)
+  @{Produces a mapping from every unique element in @racket[lst] to its (absolute) frequency in @racket[lst].}))
 
 (define (enumerate lst)
   (car
@@ -214,7 +275,7 @@
   enumerate
   (-> (listof any/c) (listof (cons/c any/c exact-nonnegative-integer?)))
   (lst)
-  @{Links every element in @racket[lst] to an index.}))
+  @{Links the n-th element in @racket[lst] to index n, where n starts at 0.}))
 
 (define (splice-in lst elem idx)
   (append

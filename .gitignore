@@ -1,7 +1,11 @@
 compiled
+doc
 *.bak
 *~
 *.sw*
 #*#
 *.1
 *.2
+scribblings/*.css
+scribblings/*.html
+scribblings/*.js
