@@ -1,9 +1,10 @@
 #lang scribble/manual
 @(require
    scribble/extract)
-@title{Unstable list utilities}
+@title{List utilities}
 This is a simple collection of list-processing functions which I have found helpful in general.
+Note that it should not be considered as stable.
 @author{Vincent Nys}
-@defmodule[unstable-list-utils]
+@defmodule[list-utils]
 @section{API}
-@include-extracted[unstable-list-utils]
+@include-extracted[list-utils]
